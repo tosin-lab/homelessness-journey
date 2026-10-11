@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import logo from "../assets/logo.svg";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router";
 import { CONTENT_DATE } from "../data/stages";
+import { accountsEnabled, onUser, signOutEverywhere } from "../lib/account";
 
 const NAV = [
   ["/journey", "Journey"],
@@ -15,6 +16,8 @@ export default function Layout() {
   const nav = useNavigate();
   const loc = useLocation();
   const [q, setQ] = useState("");
+  const [user, setUser] = useState<{ email: string } | null>(null);
+  useEffect(() => onUser(setUser), []);
 
   // Scroll to top and move focus when moving between sections (not between stages of the same page)
   const section = loc.pathname.split("/")[1] ?? "";
@@ -48,6 +51,12 @@ export default function Layout() {
             <button type="submit">Search</button>
             <Link to="/present" className="icon-btn" title="Trainer presentation mode">Present</Link>
           </form>
+          {user && (
+            <div className="account">
+              <span title={user.email}>{user.email}</span>
+              <button className="icon-btn" onClick={() => signOutEverywhere()}>Sign out</button>
+            </div>
+          )}
         </div>
       </header>
       <main id="main" className="page" tabIndex={-1}>
@@ -56,8 +65,8 @@ export default function Layout() {
       <footer className="site-foot">
         Training aid for England, correct as at {CONTENT_DATE}: Housing Act 1996 Part 7, as amended by the Homelessness
         Reduction Act 2017 and the Renters' Rights Act 2025. Not legal advice: always check the Homelessness Code of
-        Guidance and your council's own policies. Your progress is saved on this device only.{" "}
-        <a href="/__signout">Sign out</a>
+        Guidance and your council's own policies.{" "}
+        {accountsEnabled ? "Your progress is saved to your account." : "Your progress is saved on this device."}
       </footer>
     </>
   );

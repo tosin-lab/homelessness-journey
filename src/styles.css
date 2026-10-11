@@ -260,3 +260,6 @@ dl.gloss dd { margin: 0; }
   .handout { padding: 0; }
   a { color: inherit; text-decoration: none; }
 }
+
+.account { display: flex; align-items: center; gap: 8px; color: #e9f1df; font-size: 13px; }
+.account span { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { KEY_TIMES, STAGES, STAGE_ORDER } from "../data/stages";
 import { STAGE_QUIZ, FLASHCARDS } from "../data/learning";
 import { K, resetAll, useStored, type QuizScores, type Ticks } from "../lib/store";
+import { accountsEnabled } from "../lib/account";
 
 const FEATURES = [
   { to: "/journey", title: "Explore the journey", text: "A clickable flowchart from first approach to the end of the main duty, reviews and appeals.", c: "var(--forest)" },
@@ -72,11 +73,11 @@ export default function Home() {
                 <div className="stat"><b>{best === null ? "–" : `${best}%`}</b><span>best test score</span></div>
                 <div className="stat"><b>{known.length}/{FLASHCARDS.length}</b><span>flashcards known</span></div>
               </div>
-              <p className="muted" style={{ fontSize: 13 }}>Saved on this device only.</p>
-              <button className="btn small" onClick={() => { if (confirm("Clear all your progress on this device?")) resetAll(); }}>Reset progress</button>
+              <p className="muted" style={{ fontSize: 13 }}>{accountsEnabled ? "Saved to your account, so it follows you across devices." : "Saved on this device."}</p>
+              <button className="btn small" onClick={() => { if (confirm("Clear all your progress? This can't be undone.")) resetAll(); }}>Reset progress</button>
             </>
           ) : (
-            <p className="muted">Nothing yet. Explore a stage, tick off tasks or try a quiz, and your progress will show here. It's saved on this device only.</p>
+            <p className="muted">Nothing yet. Explore a stage, tick off tasks or try a quiz, and your progress will show here.</p>
           )}
         </section>
       </div>

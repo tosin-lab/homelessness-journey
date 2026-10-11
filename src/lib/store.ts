@@ -1,8 +1,8 @@
 import { useCallback, useSyncExternalStore } from "react";
 
 /**
- * Tiny persistent store backed by localStorage. Progress stays on this device only:
- * nothing is sent anywhere. Falls back to memory if storage is blocked.
+ * Tiny persistent store backed by localStorage. When someone is signed in, src/lib/sync.ts copies it
+ * to their account so progress follows them across devices. Falls back to memory if storage is blocked.
  */
 const PREFIX = "hj:";
 const cache = new Map<string, unknown>();
@@ -78,3 +78,45 @@ export const K = {
 
 export type Ticks = Record<string, number[]>;
 export type QuizScores = Record<string, { correct: number; total: number }>;
+
+export interface ProgressState {
+  viewed: string[];
+  ticks: Ticks;
+  quiz: QuizScores;
+  bestTest: number | null;
+  known: number[];
+  letters: string[];
+}
+
+export const EMPTY_PROGRESS: ProgressState = { viewed: [], ticks: {}, quiz: {}, bestTest: null, known: [], letters: [] };
+
+export function exportState(): ProgressState {
+  return {
+    viewed: load(K.viewed, EMPTY_PROGRESS.viewed),
+    ticks: load(K.ticks, EMPTY_PROGRESS.ticks),
+    quiz: load(K.quiz, EMPTY_PROGRESS.quiz),
+    bestTest: load(K.bestTest, EMPTY_PROGRESS.bestTest),
+    known: load(K.known, EMPTY_PROGRESS.known),
+    letters: load(K.letters, EMPTY_PROGRESS.letters)
+  };
+}
+
+export function importState(s: ProgressState) {
+  (Object.keys(EMPTY_PROGRESS) as (keyof ProgressState)[]).forEach(k => {
+    cache.set(k, s[k]);
+    try {
+      window.localStorage.setItem(PREFIX + k, JSON.stringify(s[k]));
+    } catch {
+      /* storage unavailable */
+    }
+  });
+  listeners.forEach(l => l());
+}
+
+/** Run a callback whenever progress changes. Returns an unsubscribe function. */
+export function onChange(cb: () => void): () => void {
+  listeners.add(cb);
+  return () => {
+    listeners.delete(cb);
+  };
+}

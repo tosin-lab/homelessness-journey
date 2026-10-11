@@ -27,13 +27,12 @@ An interactive training web app for new homelessness and housing options officer
 - Site-wide search
 - Trainer presentation mode (`/present`, arrow keys, F for full screen)
 - Printable one-page handout (`/handout`)
-- Progress saved on the device (no accounts, no tracking)
-- Invite-only: visitors need an access code before anything loads
+- Invite-only accounts: sign in with email and password on any device, with progress saved to your account
 - Keyboard and screen reader friendly, responsive on phones
 
 ## Tech
 
-React 19, TypeScript, Vite, React Router, plus a small Vercel Routing Middleware (`middleware.ts`) for the access codes. No database: it hosts free on Vercel.
+React 19, TypeScript, Vite, React Router, plus Firebase (Authentication and Firestore) for accounts and saved progress, and a small Vercel Routing Middleware (`middleware.ts`) that locks the site. Runs on free plans.
 
 ## Run it locally
 
@@ -69,23 +68,32 @@ Every push to `main` now redeploys automatically, and pull requests get their ow
 
 GitHub Actions (`.github/workflows/ci.yml`) runs the tests and a build on every push and pull request.
 
-## Access codes (invite only)
+## Accounts (invite only)
 
-The live site is locked. `middleware.ts` runs on Vercel's servers before any page or file is served, so nobody can see the content without a valid code. Signed-in trainees stay signed in on their device for 90 days, and there's a **Sign out** link in the footer.
+The live site is locked. `middleware.ts` runs on Vercel's servers before any page or file is served and checks the visitor is signed in with Firebase, so nobody can see the content without an account. Trainees sign in with their email and a password, on any device, and their progress (stages explored, ticks, quiz scores, flashcards) is saved to their account.
 
-**Codes live in Vercel, never in this repo.** In Vercel go to **Project → Settings → Environment Variables** and set `ACCESS_CODES`:
+Everything runs on free plans: Vercel Hobby and Firebase Spark.
 
-```
-HJ-7KQ4-M2XP,HJ-9DRT-3WNA:2027-03-31,HJ-...
-```
+### One-off setup (Firebase console, about 10 minutes)
 
-- Separate codes with commas.
-- Add `:YYYY-MM-DD` to a code to make it stop working after that date.
-- **Add trainees:** generate codes with `npm run codes -- 12` (or `npm run codes -- 12 2027-03-31` for codes that expire), add them to `ACCESS_CODES`, then redeploy (**Deployments → ⋯ → Redeploy**).
-- **Remove someone:** delete their code from `ACCESS_CODES` and redeploy. They're locked out on their next visit.
-- If `ACCESS_CODES` is empty or missing, the site stays locked for everyone.
+1. Create a project at [console.firebase.google.com](https://console.firebase.google.com) (Google Analytics not needed).
+2. **Add a web app** (the `</>` icon on the project overview). Copy the `firebaseConfig = { ... }` object it shows.
+3. **Authentication → Get started → Sign-in method:** enable **Email/Password** (leave "Email link" off).
+4. **Authentication → Settings:**
+   - **User actions:** untick **Enable create (sign-up)** so only people you add can have accounts.
+   - **Authorised domains:** add `homelessness-journey.vercel.app`.
+5. **Firestore Database → Create database** (production mode, region `europe-west2` London). Then open **Rules**, paste in the contents of [`firestore.rules`](firestore.rules) and **Publish**.
+6. In **Vercel → Environment Variables**, add `FIREBASE_CONFIG` and paste the config object from step 2. Then redeploy (or push to `main`).
 
-Keep a private list of which code you gave to whom (a spreadsheet is fine). The lock only applies on Vercel: `npm run dev` on your own computer is not locked.
+If `FIREBASE_CONFIG` is missing, the site stays locked for everyone.
+
+### Inviting and removing trainees
+
+- **Invite:** Firebase console → **Authentication → Users → Add user**. Enter their email and any temporary password (they never need it). Tell them to go to the site and click **First time here, or forgotten your password?** They'll get an email to set their own password.
+- **Remove:** in **Authentication → Users**, open the ⋮ menu next to them and **Disable account** (or delete it). They're locked out within the hour.
+- Set-password emails come from Firebase's address and sometimes land in junk folders, so mention this when you invite people. You can change the email wording in **Authentication → Templates**.
+
+The lock only applies on Vercel: `npm run dev` on your own computer runs without sign-in. To test sign-in locally, put `FIREBASE_CONFIG=...` in a `.env.local` file.
 
 Keep this GitHub repository **private**, otherwise anyone could download the code and content directly.
 
