@@ -56,7 +56,8 @@ export default function Layout() {
       <footer className="site-foot">
         Training aid for England, correct as at {CONTENT_DATE}: Housing Act 1996 Part 7, as amended by the Homelessness
         Reduction Act 2017 and the Renters' Rights Act 2025. Not legal advice: always check the Homelessness Code of
-        Guidance and your council's own policies. Your progress is saved on this device only.
+        Guidance and your council's own policies. Your progress is saved on this device only.{" "}
+        <a href="/__signout">Sign out</a>
       </footer>
     </>
   );

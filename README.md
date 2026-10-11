@@ -28,12 +28,12 @@ An interactive training web app for new homelessness and housing options officer
 - Trainer presentation mode (`/present`, arrow keys, F for full screen)
 - Printable one-page handout (`/handout`)
 - Progress saved on the device (no accounts, no tracking)
-- Installable and works offline (PWA)
+- Invite-only: visitors need an access code before anything loads
 - Keyboard and screen reader friendly, responsive on phones
 
 ## Tech
 
-React 19, TypeScript, Vite, React Router, vite-plugin-pwa. No backend: it's a static site, so it hosts free on Vercel.
+React 19, TypeScript, Vite, React Router, plus a small Vercel Routing Middleware (`middleware.ts`) for the access codes. No database: it hosts free on Vercel.
 
 ## Run it locally
 
@@ -68,6 +68,26 @@ git push -u origin main
 Every push to `main` now redeploys automatically, and pull requests get their own preview URL. To use your own domain, go to **Project → Settings → Domains**.
 
 GitHub Actions (`.github/workflows/ci.yml`) runs the tests and a build on every push and pull request.
+
+## Access codes (invite only)
+
+The live site is locked. `middleware.ts` runs on Vercel's servers before any page or file is served, so nobody can see the content without a valid code. Signed-in trainees stay signed in on their device for 90 days, and there's a **Sign out** link in the footer.
+
+**Codes live in Vercel, never in this repo.** In Vercel go to **Project → Settings → Environment Variables** and set `ACCESS_CODES`:
+
+```
+HJ-7KQ4-M2XP,HJ-9DRT-3WNA:2027-03-31,HJ-...
+```
+
+- Separate codes with commas.
+- Add `:YYYY-MM-DD` to a code to make it stop working after that date.
+- **Add trainees:** generate codes with `npm run codes -- 12` (or `npm run codes -- 12 2027-03-31` for codes that expire), add them to `ACCESS_CODES`, then redeploy (**Deployments → ⋯ → Redeploy**).
+- **Remove someone:** delete their code from `ACCESS_CODES` and redeploy. They're locked out on their next visit.
+- If `ACCESS_CODES` is empty or missing, the site stays locked for everyone.
+
+Keep a private list of which code you gave to whom (a spreadsheet is fine). The lock only applies on Vercel: `npm run dev` on your own computer is not locked.
+
+Keep this GitHub repository **private**, otherwise anyone could download the code and content directly.
 
 ## Updating the content
 

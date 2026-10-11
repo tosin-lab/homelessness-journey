@@ -6,3 +6,5 @@ dist-single
 *.log
 coverage
 dev-dist
+access-codes*.txt
+.env*
