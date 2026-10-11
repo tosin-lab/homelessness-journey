@@ -13,7 +13,6 @@
     "codes": "node scripts/make-codes.mjs"
   },
   "dependencies": {
-    "@vercel/functions": "^3.9.11",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-router": "^7.18.4"

@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import middleware from "../../middleware";
-import { hashCode, safeNext, validCodes } from "../lib/access";
+import middleware, { hashCode, safeNext, validCodes } from "../../middleware";
 
 const BASE = "https://example.test";
 const page = (path: string, cookie?: string) =>
