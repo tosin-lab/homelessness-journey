@@ -2,7 +2,7 @@
 
 An interactive training web app for new homelessness and housing options officers in England. It walks through the full customer journey, from the first approach to the end of the main housing duty, reviews and appeals, explaining what the officer does at each stage, who is involved and the law behind it.
 
-**Live site:** `https://<your-project>.vercel.app` (add your URL here after deploying)
+**Live site:** https://homelessness-journey.vercel.app
 
 ## Features
 
